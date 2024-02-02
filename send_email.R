@@ -17,7 +17,7 @@ my_email_object |>
     to = "amanyiraho@gmail.com",
     subject = "Q4 2023 EPI eHMIS report",
     credentials = creds_envvar( user = "ugandarug@gmail.com",
-                                pass_envvar = Sys.getenv("SMTP_PASSWORD"),
+                                pass_envvar = "SMTP_PASSWORD",
                                 provider = "gmail"
                               )
     
