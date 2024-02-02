@@ -2,6 +2,10 @@ on:
   push:
     branches: main
 
+permissions:
+  contents: write # We generate static HTML, JS, CSS so we need write access to the repo
+  pages: write
+  
 jobs:
   import-data:
     runs-on: ubuntu-latest
@@ -23,8 +27,8 @@ jobs:
 
       - name: Commit results
         run: |
-          git config --local user.email "amanyiraho@gmail.com"
-          git config --local user.name "amanyiraho"
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
           git add dhis2-data-cleaned.rds
           git commit -m 'Data updated' || echo "No changes to commit"
           git push origin || echo "No changes to commit"
