@@ -20,6 +20,7 @@ jobs:
         with:
           packages: |
             any::readr
+            any::blastula
 
       - name: Check out repository
         uses: actions/checkout@v3
