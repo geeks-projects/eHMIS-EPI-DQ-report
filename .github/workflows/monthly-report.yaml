@@ -27,7 +27,10 @@ jobs:
             any::scales
             any::sf
             any::ggspatial
-
+            
+      - name: Set up Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        
       - name: Check out repository
         uses: actions/checkout@v3
 
