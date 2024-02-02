@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:  
       SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+      EMAIL_SENDER: ${{ secrets.EMAIL_SENDER }}
+      EMAIL_RECIPIENT: ${{ secrets.EMAIL_RECIPIENT }}
     steps:
       - name: Set up R
         uses: r-lib/actions/setup-r@v2
