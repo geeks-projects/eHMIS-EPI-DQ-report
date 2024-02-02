@@ -1,5 +1,8 @@
 library(blastula)
+library(quarto)
 
+
+quarto_render("eHMIS-EPI-DQ-report.qmd", output_format = "pdf")
 
 # read environment variables ----------------------------------------------
 EMAIL_SENDER <- Sys.getenv("EMAIL_SENDER")
@@ -30,12 +33,10 @@ my_email_object <- compose_email(
 
 
 my_email_object |> 
-  #add_attachment(file = "eHMIS-EPI-DQ-report.pdf") |> 
+  add_attachment(file = "eHMIS-EPI-DQ-report.pdf") |> 
   smtp_send(
     from = EMAIL_SENDER,
-    to = EMAIL_RECIPIENT,
-   # from = "ugandarug@gmail.com", # i did user quotes
-   # to = "amanyiraho@gmail.com",
+    to = EMAIL_RECIPIENT,# i didn't use quotes
     subject = "Q4 2023 EPI eHMIS report",
     credentials = credentials, 
     verbose = TRUE
