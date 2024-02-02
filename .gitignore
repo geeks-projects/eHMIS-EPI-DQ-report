@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
+creds.R
+gmail_creds

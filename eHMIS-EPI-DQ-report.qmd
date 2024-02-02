@@ -1,7 +1,7 @@
 ---
 title: "eHMIS EPI data quality report"
 author: "GEEKS Group 3 fellows"
-format: pdf
+format: blastula::blastula_email
 execute: 
   echo: false
   cache: true
