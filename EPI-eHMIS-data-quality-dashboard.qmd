@@ -27,6 +27,7 @@ library(vroom)
 
 data <- read.csv("./data/dhis2-data3.csv")
 
+
 data_clean  <- data |> 
 mutate( missing_reports = Expected.reports - Actual.reports, 
          missing_reports = if_else(missing_reports == 0, FALSE, TRUE),
