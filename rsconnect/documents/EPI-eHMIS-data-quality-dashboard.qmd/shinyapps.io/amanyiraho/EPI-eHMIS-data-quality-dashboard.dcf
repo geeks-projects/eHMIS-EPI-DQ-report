@@ -5,11 +5,11 @@ account: amanyiraho
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 11130973
-bundleId: 8219628
+bundleId: 8258228
 url: https://amanyiraho.shinyapps.io/EPI-eHMIS-data-quality-dashboard/
 version: 1
 quarto_version: 1.4.549
 quarto_engines: knitr
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .github/workflows/monthly-report.yaml|.Rbuildignore|.RData|creds.R|data/dhis2-data.csv|dhis2-data-cleaned.rds|eHMIS-EPI-DQ-report.html|eHMIS-EPI-DQ-report.pdf|eHMIS-EPI-DQ-report.qmd|gmail_creds|hh.html|hh.qmd|import-data.R|README.md|send_email.R|eHMIS-EPI-DQ-report_cache|eHMIS-EPI-DQ-report_files|hh_files
+ignoredFiles: .github/workflows/monthly-report.yaml|.Rbuildignore|.RData|creds.R|data/dhis2-data.csv|data/dhis2-data2.csv|dhis2-data-cleaned.rds|eHMIS-EPI-DQ-report.html|eHMIS-EPI-DQ-report.pdf|eHMIS-EPI-DQ-report.qmd|EPI-eHMIS-data-quality/server.R|EPI-eHMIS-data-quality/ui.R|gmail_creds|import-data.R|README.md|send_email.R|eHMIS-EPI-DQ-report_cache|eHMIS-EPI-DQ-report_files

@@ -1,5 +1,6 @@
 ---
-title: "EPI eHMIS data quality dashboard"
+title: "EPI eHMIS data quality"
+subtitle: "Dec 2023"
 format: 
   dashboard:
     orientation: rows
@@ -36,12 +37,6 @@ mutate( missing_reports = Expected.reports - Actual.reports,
          .keep = "unused") |> 
   filter( !(is.na(missing_reports)& is.na(neg_dropout_rate_dpt1_3) & 
               is.na(discrepancy_dpt3_pcv3) & is.na(neg_wastage_rates_dpt))) |> 
-   # mutate(neg_dropout_rate_dpt1_3 = case_when(missing_reports == TRUE ~ NA,
-   #                                           missing_reports == FALSE ~ neg_dropout_rate_dpt1_3),
-   #        discrepancy_dpt3_pcv3 = case_when(missing_reports == TRUE ~ NA,
-   #                                           missing_reports == FALSE ~ discrepancy_dpt3_pcv3),
-   #        neg_wastage_rates_dpt = case_when(missing_reports == TRUE ~ NA,
-   #                                           missing_reports == FALSE ~ neg_wastage_rates_dpt)) |> 
     filter(!((missing_reports == TRUE ) & (!is.na(neg_dropout_rate_dpt1_3) | !is.na(discrepancy_dpt3_pcv3) | !is.na(neg_wastage_rates_dpt)))) |>
   mutate(District = str_remove_all(District, " District"),
          HF = str_replace(HF, "Health Centre", "HC"))
@@ -51,17 +46,7 @@ final_df <- data_clean  |>
   rowwise() |> 
   mutate(score = sum(missing_reports, neg_dropout_rate_dpt1_3, 
                             discrepancy_dpt3_pcv3, neg_wastage_rates_dpt, na.rm = T)) |> 
-  ungroup() |> 
-  mutate(priorty = case_when(
-             score == 3 ~ "High", 
-             score == 2 ~ "Mid", 
-             score == 1 ~ "Low", 
-             score == 0 ~ "Low", 
-             )) |> 
-   mutate(priorty = case_when(
-             missing_reports == TRUE ~ "High",
-             missing_reports == FALSE ~ priorty)) |> 
-  arrange(desc(priorty))
+  ungroup()
 
 ```
 
@@ -80,25 +65,23 @@ district_data <- final_df |>
 
 ```{r}
 national_summary <- district_data |> 
-  mutate(missing_reports = if_else(missing_reports >= 50, TRUE, FALSE),
-         neg_dropout_rate_dpt1_3 = if_else(neg_dropout_rate_dpt1_3 >= 50, TRUE, FALSE),
-         discrepancy_dpt3_pcv3 = if_else(discrepancy_dpt3_pcv3 >= 50, TRUE, FALSE),
-         neg_wastage_rates_dpt = if_else(neg_wastage_rates_dpt >= 50, TRUE, FALSE),
+  mutate(missing_reports = if_else(missing_reports >= 20, TRUE, FALSE),
+         neg_dropout_rate_dpt1_3 = if_else(neg_dropout_rate_dpt1_3 >= 20, TRUE, FALSE),
+         discrepancy_dpt3_pcv3 = if_else(discrepancy_dpt3_pcv3 >= 20, TRUE, FALSE),
+         neg_wastage_rates_dpt = if_else(neg_wastage_rates_dpt >= 20, TRUE, FALSE),
          .keep = "unused") |> 
-  summarise(across(missing_reports:neg_wastage_rates_dpt, sum, .na.rm = T))
+  summarise(across(missing_reports:neg_wastage_rates_dpt,\(x) sum(x, na.rm = T)))
   
 ```
 
 ```{r}
 threshold <- function(x){
   
-  case_when(x <= 20 ~ "0 - 20", 
-             x <= 40 ~ "20 - 40", 
-             x <= 60 ~ "40 - 60", 
-             x <= 80 ~ "60 - 80", 
-             x <= 100 ~ "80 - 100"
+  case_when(x <= 10 ~ "0 - 10", 
+             x <= 20 ~ "10 - 20", 
+             x <= 100 ~ "20 - 100"
              ) |> 
-    factor(levels = c("0 - 20", "20 - 40", "40 - 60", "60 - 80","80 - 100"))
+    factor(levels = c("0 - 10", "10 - 20","20 - 100"))
 }
 
 ug_geodata <- sf::read_sf("./shapefiles/local/") |> 
@@ -119,11 +102,10 @@ plot_data <- ug_geodata |>
 
 ```{r}
 # Create custom labels - e.g. (0k-10k]
-labs <- c(0, 20, 40, 60,80, 100)
+labs <- c(0,10, 20, 100)
 
-cols <- c("0 - 20" =  "#1a9641", "20 - 40" = "#a6d96a", 
-          "40 - 60" = "#ffffbf", "60 - 80" = "#fdae61",
-          "80 - 100"= "#d7191c")
+cols <- c("0 - 10" =  "#1a9641", "10 - 20" = "#fdae61",
+          "20 - 100"= "#d7191c")
 
 labs_plot <- paste0(labs[1:5],"-", labs[2:6])
 
@@ -133,7 +115,7 @@ plot_ug_map <- function(data, fill, title ){
   geom_sf(data = data, aes(fill = {{fill}}, group = District),
           color = "white",
           linetype = 1) +
-  geom_sf_text(data = data,aes(label = case_when({{fill}} == "80 - 100"~ District, NULL)),size = 2) +
+  geom_sf_text(data = data,aes(label = case_when({{fill}} == "20 - 100"~ District, NULL)),size = 2) +
     # Labs
     labs(title = title,
          fill = "%") +
@@ -165,7 +147,7 @@ bar_plot <- function(data, indicator){
     # Labs
     labs(title = NULL,
          y = "Number of districts",
-         x = "Category",
+         x = glue::glue("% of HFs in a district"),
          fill = "%") +
   theme_classic()
 }
@@ -306,14 +288,14 @@ output$table <- reactable::renderReactable({
   dplyr::ungroup() |> 
   dplyr::mutate(priorty = dplyr::case_when(
              score == 3 ~ "High", 
-             score == 2 ~ "Mid", 
-             score == 1 ~ "Low", 
+             score == 2 ~ "High", 
+             score == 1 ~ "Mid", 
              score == 0 ~ "Low", 
              )) |> 
    dplyr::mutate(priorty = dplyr::case_when(
              missing_reports == TRUE ~ "High",
              missing_reports == FALSE ~ priorty)) |> 
-  dplyr::arrange(desc(priorty))
+  dplyr::arrange(priorty)
     
     
     reactable::reactable(final_df,  bordered = TRUE, highlight = TRUE,

@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>EPI eHMIS data quality dashboard</title>
+<title>EPI eHMIS data quality</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -58,8 +58,8 @@ ul.task-list li input[type="checkbox"] {
     <div class="navbar-brand-container">       
 
       <div class="navbar-title">
-        <div class="navbar-title-text"><a href="#">EPI eHMIS data quality dashboard</a></div>
-        
+        <div class="navbar-title-text"><a href="#">EPI eHMIS data quality</a></div>
+        <div class="navbar-subtitle">Dec 2023</div>
         
       </div>
     </div>
@@ -353,7 +353,7 @@ bslib.Sidebar.initCollapsibleAll()
 <script type="application/shiny-prerendered" data-context="server">
 output$table <- reactable::renderReactable({
  
-   data2 <- vroom::vroom("data/dhis2-data3.csv")
+   data2 <- vroom::vroom("data/dhis2-data4.csv")
     
     data_clean  <- data2 |> 
          dplyr::mutate(District = stringr::str_remove_all(District, " District"),
@@ -385,14 +385,14 @@ output$table <- reactable::renderReactable({
   dplyr::ungroup() |> 
   dplyr::mutate(priorty = dplyr::case_when(
              score == 3 ~ "High", 
-             score == 2 ~ "Mid", 
-             score == 1 ~ "Low", 
+             score == 2 ~ "High", 
+             score == 1 ~ "Mid", 
              score == 0 ~ "Low", 
              )) |> 
    dplyr::mutate(priorty = dplyr::case_when(
              missing_reports == TRUE ~ "High",
              missing_reports == FALSE ~ priorty)) |> 
-  dplyr::arrange(desc(priorty))
+  dplyr::arrange(priorty)
     
     
     reactable::reactable(final_df,  bordered = TRUE, highlight = TRUE,
