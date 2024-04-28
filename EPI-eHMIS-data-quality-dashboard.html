@@ -59,7 +59,7 @@ ul.task-list li input[type="checkbox"] {
 
       <div class="navbar-title">
         <div class="navbar-title-text"><a href="#">EPI eHMIS data quality</a></div>
-        <div class="navbar-subtitle">Dec 2023</div>
+        <div class="navbar-subtitle">Nov 2023</div>
         
       </div>
     </div>
@@ -353,18 +353,20 @@ bslib.Sidebar.initCollapsibleAll()
 <script type="application/shiny-prerendered" data-context="server">
 output$table <- reactable::renderReactable({
  
-   data2 <- vroom::vroom("data/dhis2-data4.csv")
+   data2 <- vroom::vroom("data/dhis2-112023.csv")
     
     data_clean  <- data2 |> 
          dplyr::mutate(District = stringr::str_remove_all(District, " District"),
          HF = stringr::str_replace(HF, "Health Centre", "HC")) |> 
       dplyr::filter(District == input$district) |> 
     #  dplyr::rowwise() |> 
+    
+    
       dplyr::mutate(missing_reports = `Expected reports` - `Actual reports`, 
              missing_reports = dplyr::if_else(missing_reports == 0, FALSE, TRUE),
-             neg_dropout_rate_dpt1_3 = dplyr::if_else(`dropout rate` >= 0, FALSE, TRUE),
-             discrepancy_dpt3_pcv3 = DPT3 - `PCV 3`, 
-             discrepancy_dpt3_pcv3 = dplyr::if_else(discrepancy_dpt3_pcv3 == 0, FALSE, TRUE),
+             neg_dropout_rate_dpt1_3 = dplyr::if_else(`dropout rate` >= -10, FALSE, TRUE),
+             discrepancy_dpt3_pcv3 = abs(((DPT3 - `PCV 3`)/DPT3)), 
+             discrepancy_dpt3_pcv3 = dplyr::if_else(discrepancy_dpt3_pcv3 <= 0.1, FALSE, TRUE),
              neg_wastage_rates_dpt = dplyr::if_else(`wastage rate` >= 0, FALSE, TRUE),
              .keep = "unused") |> 
         dplyr::filter(!(is.na(missing_reports)& is.na(neg_dropout_rate_dpt1_3) &

@@ -1,0 +1,15 @@
+name: EPI-eHMIS-data-quality-dashboard
+title: EPI-eHMIS-data-quality-dashboard
+username: afenetgeeks
+account: afenetgeeks
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 11425501
+bundleId: 8552255
+url: https://afenetgeeks.shinyapps.io/EPI-eHMIS-data-quality-dashboard/
+version: 1
+quarto_version: 1.4.549
+quarto_engines: knitr
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: .github/workflows/monthly-report.yaml|.Rbuildignore|.RData|creds.R|data/dhis2-data.csv|data/dhis2-data2.csv|data/dhis2-data4.csv|dhis2-data-cleaned.rds|eHMIS-EPI-DQ-report.html|eHMIS-EPI-DQ-report.pdf|eHMIS-EPI-DQ-report.qmd|EPI-eHMIS-data-quality/server.R|EPI-eHMIS-data-quality/ui.R|gmail_creds|import-data.R|README.md|send_email.R

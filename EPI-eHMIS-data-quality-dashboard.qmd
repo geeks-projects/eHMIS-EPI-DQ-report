@@ -1,6 +1,6 @@
 ---
 title: "EPI eHMIS data quality"
-subtitle: "Dec 2023"
+subtitle: "Nov 2023"
 format: 
   dashboard:
     orientation: rows
@@ -25,15 +25,15 @@ library(vroom)
 
 ```{r}
 
-data <- read.csv("./data/dhis2-data3.csv")
+data <- read.csv("./data/dhis2-112023.csv")
 
 
 data_clean  <- data |> 
 mutate( missing_reports = Expected.reports - Actual.reports, 
          missing_reports = if_else(missing_reports == 0, FALSE, TRUE),
-         neg_dropout_rate_dpt1_3 = if_else(dropout.rate >= 0, FALSE, TRUE),
-         discrepancy_dpt3_pcv3 = DPT3 - PCV.3, 
-         discrepancy_dpt3_pcv3 = if_else(discrepancy_dpt3_pcv3 == 0, FALSE, TRUE),
+         neg_dropout_rate_dpt1_3 = if_else(dropout.rate >= -10, FALSE, TRUE),
+         discrepancy_dpt3_pcv3 = abs(((DPT3 - PCV.3)/DPT3)), 
+         discrepancy_dpt3_pcv3 = if_else(discrepancy_dpt3_pcv3 <= 0.1, FALSE, TRUE),
          neg_wastage_rates_dpt = if_else(wastage.rate >= 0, FALSE, TRUE),
          .keep = "unused") |> 
   filter( !(is.na(missing_reports)& is.na(neg_dropout_rate_dpt1_3) & 
@@ -116,7 +116,7 @@ plot_ug_map <- function(data, fill, title ){
   geom_sf(data = data, aes(fill = {{fill}}, group = District),
           color = "white",
           linetype = 1) +
-  geom_sf_text(data = data,aes(label = case_when({{fill}} == "20 - 100"~ District, NULL)),size = 2) +
+  geom_sf_text(data = data,aes(label = case_when({{fill}} != "0 - 10"~ District, NULL)),size = 2) +
     # Labs
     labs(title = title,
          fill = "%") +
@@ -225,7 +225,7 @@ bar_plot(data = plot_data, indicator = neg_wastage_rates_dpt)
 ```{r}
 
 #| context: setup
-data2 <- vroom("data/dhis2-data3.csv")
+data2 <- vroom("data/dhis2-112023.csv")
 
 districts_df <- data2 |>  
   mutate(District = str_remove_all(District, " District"),
@@ -257,18 +257,20 @@ reactable::reactableOutput("table")
 
 output$table <- reactable::renderReactable({
  
-   data2 <- vroom::vroom("data/dhis2-data3.csv")
+   data2 <- vroom::vroom("data/dhis2-112023.csv")
     
     data_clean  <- data2 |> 
          dplyr::mutate(District = stringr::str_remove_all(District, " District"),
          HF = stringr::str_replace(HF, "Health Centre", "HC")) |> 
       dplyr::filter(District == input$district) |> 
     #  dplyr::rowwise() |> 
+    
+    
       dplyr::mutate(missing_reports = `Expected reports` - `Actual reports`, 
              missing_reports = dplyr::if_else(missing_reports == 0, FALSE, TRUE),
-             neg_dropout_rate_dpt1_3 = dplyr::if_else(`dropout rate` >= 0, FALSE, TRUE),
-             discrepancy_dpt3_pcv3 = DPT3 - `PCV 3`, 
-             discrepancy_dpt3_pcv3 = dplyr::if_else(discrepancy_dpt3_pcv3 == 0, FALSE, TRUE),
+             neg_dropout_rate_dpt1_3 = dplyr::if_else(`dropout rate` >= -10, FALSE, TRUE),
+             discrepancy_dpt3_pcv3 = abs(((DPT3 - `PCV 3`)/DPT3)), 
+             discrepancy_dpt3_pcv3 = dplyr::if_else(discrepancy_dpt3_pcv3 <= 0.1, FALSE, TRUE),
              neg_wastage_rates_dpt = dplyr::if_else(`wastage rate` >= 0, FALSE, TRUE),
              .keep = "unused") |> 
         dplyr::filter(!(is.na(missing_reports)& is.na(neg_dropout_rate_dpt1_3) &
